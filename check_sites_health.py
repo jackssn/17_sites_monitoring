@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 import whois
 import datetime
@@ -32,29 +33,17 @@ def is_available_month_later(domain_name):
     return expired_date > month_later
 
 
-def print_urls(url_list):
-    if url_list:
-        for i, url in enumerate(url_list):
-            print("\t%s) %s" % (i+1, url))
-
 if __name__ == '__main__':
-    urls = load_urls4check(input("Please enter path to urls-file: "))
-    if urls:
-        available_urls = [url for url in urls if is_server_respond_with_200(url)]
-        unavailable_urls = [url for url in set(urls).difference(available_urls)]
-        payed_domains = [url for url in available_urls if is_available_month_later(url)]
-        expired_domains = [url for url in set(available_urls).difference(payed_domains)]
-        if available_urls:
-            print("Available urls:")
-            print_urls(available_urls)
-        if payed_domains:
-            print("These domains are payed more than 1 month in advance:")
-            print_urls(payed_domains)
-        if expired_domains:
-            print("These domains ain\'t payed more than 1 month in advance or has been expired:")
-            print_urls(expired_domains)
-        if unavailable_urls:
-            print("Unavailable urls:")
-            print_urls(unavailable_urls)
-    else:
-        print("Incorrect path to urls-file.")
+    path = input("Please enter path to file with urls you want to check or type 'exit' to exit: ")
+    urls = load_urls4check(path)
+    if not urls:
+        sys.exit("Incorrect path to file with urls.")
+    for url in urls:
+        if is_server_respond_with_200(url):
+            text = '%s is available' % url
+            if is_available_month_later:
+                print(text, 'and domain is payed more than 1 month in advance.')
+            else:
+                print(text, 'and domain is NOT payed more than 1 month in advance or has been expired.' % url)
+        else:
+            print('%s is NOT available!' % url)
